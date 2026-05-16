@@ -6,7 +6,7 @@
   },
 
 
-  "remarks": "MITM-DomainFronting_v18",
+  "remarks": "MITM-DomainFronting_v19",
 
   "version": {
     "min": "26.2.6"
@@ -163,7 +163,7 @@
         "security": "tls",
         "tlsSettings": {
           "serverName": "fromMitM",
-          "verifyPeerCertByName": "fromMitM,github.com,www.github.com,api.github.com",
+          "verifyPeerCertByName": "fromMitM,github.com,www.github.com,api.github.com,codeload.github.com",
           "alpn": ["fromMitM"],
           "fingerprint": "chrome"
         },
@@ -469,7 +469,7 @@
 	  },
 	  {
 	   "outboundTag": "tls-repack-fastly",
-       "domain": ["geosite:fastly", "geosite:reddit", "geosite:cnn", "domain:buzzfeed.com", "domain:release-assets.githubusercontent.com", "domain:private-user-images.githubusercontent.com", "domain:raw.githubusercontent.com", "domain:github.githubassets.com", "domain:avatars.githubusercontent.com", "domain:xtls.github.io"],
+       "domain": ["geosite:fastly", "geosite:reddit", "geosite:cnn", "domain:buzzfeed.com", "domain:release-assets.githubusercontent.com", "domain:private-user-images.githubusercontent.com", "domain:raw.githubusercontent.com", "domain:github.githubassets.com", "domain:avatars.githubusercontent.com", "domain:camo.githubusercontent.com", "domain:xtls.github.io"],
        "inboundTag": ["tls-decrypt-h211"]
 	  },
 	  {
@@ -479,7 +479,7 @@
 	  },
       {
 	   "outboundTag": "tls-repack-frommitm",
-       "domain": ["domain:api.github.com"],
+       "domain": ["domain:api.github.com", "domain:codeload.github.com"],
        "inboundTag": ["tls-decrypt-h211"]
 	  },
       {
@@ -527,7 +527,7 @@
         "outboundTag": "redirect-out-h211",
         "network": "tcp",
         "port": 443,
-        "domain": ["geosite:github", "geosite:google", "geosite:vercel", "geosite:fastly", "geosite:reddit", "geosite:netlify", "geosite:cnn", "domain:buzzfeed.com", "domain:release-assets.githubusercontent.com", "domain:private-user-images.githubusercontent.com", "domain:raw.githubusercontent.com", "domain:github.githubassets.com", "domain:avatars.githubusercontent.com", "domain:xtls.github.io", "domain:gist.github.com", "domain:objects-origin.githubusercontent.com", "domain:api.individual.githubcopilot.com", "domain:glb-db52c2cf8be544.github.com", "domain:api.githubcopilot.com", "domain:pmc.ncbi.nlm.nih.gov"]
+        "domain": ["geosite:github", "geosite:google", "geosite:vercel", "geosite:fastly", "geosite:reddit", "geosite:netlify", "geosite:cnn", "domain:buzzfeed.com", "domain:release-assets.githubusercontent.com", "domain:private-user-images.githubusercontent.com", "domain:raw.githubusercontent.com", "domain:github.githubassets.com", "domain:avatars.githubusercontent.com", "domain:xtls.github.io", "domain:gist.github.com", "domain:objects-origin.githubusercontent.com", "domain:api.individual.githubcopilot.com", "domain:glb-db52c2cf8be544.github.com", "domain:api.githubcopilot.com", "domain:camo.githubusercontent.com", "domain:pmc.ncbi.nlm.nih.gov"]
       },
       {
         "outboundTag": "block",
