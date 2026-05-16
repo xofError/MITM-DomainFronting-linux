@@ -34,7 +34,7 @@ https://github.com/2dust/v2rayN/releases
 دانلود و اکسترکت کنید
 
 ۲. حال نیاز به یک سرتیفیکیت شخصی دارید برای این کار فایل 
-certificate-generator.bat
+certificate_generator.bat
 را به فولدر 
 v2rayN-windows-64\bin
 منتقل و در همانجا اجرا کنید
