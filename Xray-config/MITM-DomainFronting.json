@@ -2,11 +2,12 @@
   "__Credits__": {
     "creator": "@patterniha",
     "donate1": "USDT (BEP20): 0x76a768B53Ca77B43086946315f0BDF21156bF424",
-    "donate2": "USDT (TRC20): TU5gKvKqcXPn8itp1DouBCwcqGHMemBm8o"
+    "donate2": "USDT (TRC20): TU5gKvKqcXPn8itp1DouBCwcqGHMemBm8o",
+    "donate3": "TON (TON): UQAc-mZB3y7uxWHKiMmq0ORZEYgycWDWZ4V1k73HsXvTJx-i"
   },
 
 
-  "remarks": "MITM-DomainFronting_v21",
+  "remarks": "MITM-DomainFronting_v22",
 
   "version": {
     "min": "26.2.6"
@@ -28,26 +29,29 @@
   "dns":{
     "hosts": {
       "geosite:category-ads-all": "#3",
-      "google-main-services.redirect": "www.google.com",
-	  "vercel-sites.redirect": "react.dev",
 	  "fastly.redirect": "github.githubassets.com",
-	  "netlify.redirect": "kubernetes.io",
-      "github-com.redirect": "www.github.com",
-      "github-com-2.redirect": "collector.github.com",
-      "github-uploads.redirect": ["140.82.121.13", "140.82.121.14"],
-      "github-alive.redirect": "alive.github.com",
-      "pubmed.redirect": "pubmed.ncbi.nlm.nih.gov"
+      "dns.redirect": ["1.1.1.1", "1.0.0.1"]
     },
     "servers": [
-      "fakedns",
-	  {
-	    "address": "localhost",
-	    "unexpectedIPs": ["10.10.34.0/24", "2001:4188:2:600::/64"]
+      {
+        "address": "fakedns",
+        "domains": ["domain:ir", "geosite:private", "geosite:category-ir", "full:github.githubassets.com"]
+      },
+      {
+        "tag": "no-filter-dns",
+        "address": "h2c://1.1.1.1/dns-query",
+        "timeoutMs": 15000,
+        "finalQuery": true
+      },
+      {
+        "address": "localhost",
+        "domains": ["domain:ir", "geosite:private", "geosite:category-ir", "full:github.githubassets.com"],
+        "finalQuery": true
       }
     ],
     "queryStrategy": "UseSystem",
     "useSystemHosts": true,
-    "tag": "dns_inbound"
+    "serveStale": true
   },
 
   "inbounds": [
@@ -164,29 +168,7 @@
         "security": "tls",
         "tlsSettings": {
           "serverName": "fromMitM",
-          "verifyPeerCertByName": "fromMitM,github.com,www.github.com,api.github.com,codeload.github.com",
-          "alpn": ["fromMitM"],
-          "fingerprint": "chrome"
-        },
-		"sockopt": {
-          "domainStrategy": "ForceIP",
-          "happyEyeballs": {
-            "tryDelayMs": 300,
-            "prioritizeIPv6": false,
-            "interleave": 2,
-            "maxConcurrentTry": 20
-          }
-        }
-      }
-    },
-	{
-      "tag": "tls-repack-googlevideo",
-      "protocol": "direct",
-      "streamSettings": {
-        "security": "tls",
-        "tlsSettings": {
-          "serverName": "www.google.com",
-          "verifyPeerCertByName": "fromMitM,www.google.com,dns.google,www.googlevideo.com,www.youtube.com",
+          "verifyPeerCertByName": "fromMitM",
           "alpn": ["fromMitM"],
           "fingerprint": "chrome"
         },
@@ -202,16 +184,16 @@
       }
     },
     {
-      "tag": "tls-repack-google-main-services",
+      "tag": "tls-repack-dns",
       "protocol": "direct",
       "settings": {
-        "redirect": "google-main-services.redirect:443"
+        "redirect": "dns.redirect:443"
       },
       "streamSettings": {
         "security": "tls",
         "tlsSettings": {
-          "serverName": "www.google.com",
-          "verifyPeerCertByName": "fromMitM,www.google.com,dns.google,www.googlevideo.com,www.youtube.com",
+          "serverName": "www.microsoft.com",
+          "verifyPeerCertByName": "fromMitM,www.microsoft.com,www.google.com,dns.google,cloudflare-dns.com,one.one.one.one",
           "alpn": ["fromMitM"],
           "fingerprint": "chrome"
         },
@@ -227,16 +209,13 @@
       }
     },
 	{
-      "tag": "tls-repack-vercel-sites",
+      "tag": "tls-repack-google",
       "protocol": "direct",
-      "settings": {
-        "redirect": "vercel-sites.redirect:443"
-      },
       "streamSettings": {
         "security": "tls",
         "tlsSettings": {
-          "serverName": "react.dev",
-          "verifyPeerCertByName": "fromMitM,react.dev,cursor.com,ai-sdk.dev,err.sh,hyper.is,nextjs.org,now.sh,skills.sh,static.fun,title.sh,turborepo.org,vercel-dns.com,vercel-status.com,vercel.app,vercel.blog,vercel.com,vercel.dev,vercel.events,vercel.live,vercel.pub,vercel.sh,vercel.store,zeit-world.co.uk,zeit-world.com,zeit-world.net,zeit-world.org,zeit.co,zeit.sh,zeitworld.com",
+          "serverName": "www.google.com",
+          "verifyPeerCertByName": "fromMitM,www.google.com,dns.google,www.googlevideo.com,www.youtube.com",
           "alpn": ["fromMitM"],
           "fingerprint": "chrome"
         },
@@ -276,164 +255,14 @@
         }
       }
     },
-	{
-      "tag": "tls-repack-netlify",
-      "protocol": "direct",
-      "settings": {
-        "redirect": "netlify.redirect:443"
-      },
-      "streamSettings": {
-        "security": "tls",
-        "tlsSettings": {
-          "serverName": "kubernetes.io",
-          "verifyPeerCertByName": "fromMitM,www.netlify.com,kubernetes.io,letsencrypt.org,aws.amazon.com,aws-us-west-2.amazon.com,www.aws.amazon.com,1.aws-lbr.amazonaws.com,amazonaws-china.com,www.amazonaws-china.com,aws-us-east-1.amazon.com",
-          "alpn": ["fromMitM"],
-          "fingerprint": "chrome"
-        },
-		"sockopt": {
-          "domainStrategy": "ForceIP",
-          "happyEyeballs": {
-            "tryDelayMs": 300,
-            "prioritizeIPv6": false,
-            "interleave": 2,
-            "maxConcurrentTry": 20
-          }
-        }
-      }
-    },
     {
-      "tag": "tls-repack-github-com",
-      "protocol": "direct",
-      "settings": {
-        "redirect": "github-com.redirect:443"
-      },
-      "streamSettings": {
-        "security": "tls",
-        "tlsSettings": {
-          "serverName": "www.github.com",
-          "verifyPeerCertByName": "fromMitM,github.com,www.github.com",
-          "alpn": ["fromMitM"],
-          "fingerprint": "chrome"
-        },
-		"sockopt": {
-          "domainStrategy": "ForceIP",
-          "happyEyeballs": {
-            "tryDelayMs": 300,
-            "prioritizeIPv6": false,
-            "interleave": 2,
-            "maxConcurrentTry": 20
-          }
-        }
-      }
-    },
-    {
-      "tag": "tls-repack-github-com-2",
-      "protocol": "direct",
-      "settings": {
-        "redirect": "github-com-2.redirect:443"
-      },
-      "streamSettings": {
-        "security": "tls",
-        "tlsSettings": {
-          "serverName": "collector.github.com",
-          "verifyPeerCertByName": "fromMitM,collector.github.com,central.github.com,github.com,www.github.com",
-          "alpn": ["fromMitM"],
-          "fingerprint": "chrome"
-        },
-		"sockopt": {
-          "domainStrategy": "ForceIP",
-          "happyEyeballs": {
-            "tryDelayMs": 300,
-            "prioritizeIPv6": false,
-            "interleave": 2,
-            "maxConcurrentTry": 20
-          }
-        }
-      }
-    },
-    {
-      "tag": "tls-repack-github-uploads",
-      "protocol": "direct",
-      "settings": {
-        "redirect": "github-uploads.redirect:443"
-      },
-      "streamSettings": {
-        "security": "tls",
-        "tlsSettings": {
-          "serverName": "140.82.121.13",
-          "verifyPeerCertByName": "fromMitM,140.82.121.13,140.82.121.14,alive.github.com,live.github.com,github.com,www.github.com,actions.githubusercontent.com,central.github.com,githubassets.com,github.io,githubusercontent.com,uploads.github.com,alambic-origin.githubusercontent.com,camo-origin.githubusercontent.com",
-          "alpn": ["fromMitM"],
-          "fingerprint": "chrome"
-        },
-		"sockopt": {
-          "domainStrategy": "ForceIP",
-          "happyEyeballs": {
-            "tryDelayMs": 300,
-            "prioritizeIPv6": false,
-            "interleave": 2,
-            "maxConcurrentTry": 20
-          }
-        }
-      }
-    },
-    {
-      "tag": "tls-repack-github-alive",
-      "protocol": "direct",
-      "settings": {
-        "redirect": "github-alive.redirect:443"
-      },
-      "streamSettings": {
-        "security": "tls",
-        "tlsSettings": {
-          "serverName": "alive.github.com",
-          "verifyPeerCertByName": "fromMitM,alive.github.com,live.github.com,github.com,www.github.com",
-          "alpn": ["fromMitM"],
-          "fingerprint": "chrome"
-        },
-		"sockopt": {
-          "domainStrategy": "ForceIP",
-          "happyEyeballs": {
-            "tryDelayMs": 300,
-            "prioritizeIPv6": false,
-            "interleave": 2,
-            "maxConcurrentTry": 20
-          }
-        }
-      }
-    },
-    {
-      "tag": "tls-repack-pubmed",
-      "protocol": "direct",
-      "settings": {
-        "redirect": "pubmed.redirect:443"
-      },
-      "streamSettings": {
-        "security": "tls",
-        "tlsSettings": {
-          "serverName": "pubmed.ncbi.nlm.nih.gov",
-          "verifyPeerCertByName": "fromMitM,pubmed.ncbi.nlm.nih.gov,cdn.ncbi.nlm.nih.gov,pmc.ncbi.nlm.nih.gov,www.st-va.ncbi.nlm.nih.gov,www.ncbi.nlm.nih.gov,ncbi.nlm.nih.gov",
-          "alpn": ["fromMitM"],
-          "fingerprint": "chrome"
-        },
-		"sockopt": {
-          "domainStrategy": "ForceIP",
-          "happyEyeballs": {
-            "tryDelayMs": 300,
-            "prioritizeIPv6": false,
-            "interleave": 2,
-            "maxConcurrentTry": 20
-          }
-        }
-      }
-    },
-    {
-      "tag": "tls-repack-github-null",
+      "tag": "tls-repack-meta",
       "protocol": "direct",
       "streamSettings": {
         "security": "tls",
         "tlsSettings": {
-          "serverName": "140.82.121.4",
-          "verifyPeerCertByName": "fromMitM,140.82.121.4,alive.github.com,live.github.com,github.com,www.github.com,actions.githubusercontent.com,central.github.com,githubassets.com,github.io,githubusercontent.com",
+          "serverName": "www.microsoft.com",
+          "verifyPeerCertByName": "fromMitM,www.google.com,www.microsoft.com,www.whatsapp.com,www.facebook.com,www.ar.meta.com,www.fb.com,www.whatsapp.net,www.atlassolutions.com,www.secure.facebook.com,www.extern.facebook.com,www.internet.org,www.oculus.com,www.wit.ai,www.facebook-dns.com,www.instagram.com,www.meta.com,www.external-disputes.meta.com,www.fbe2e.com,www.cloud.x2p.facebook.net,www.secure.latest.facebook.com",
           "alpn": ["fromMitM"],
           "fingerprint": "chrome"
         },
@@ -458,8 +287,8 @@
        "domain": ["geosite:category-ads-all"]
       },
       {
-	   "outboundTag": "direct",
-       "inboundTag": ["dns_inbound"], "port": 53
+	   "outboundTag": "tls-repack-dns",
+       "inboundTag": ["no-filter-dns"]
       },
       {
 	   "outboundTag": "dns-out",
@@ -470,13 +299,8 @@
        "domain": ["domain:ir", "geosite:private", "geosite:category-ir", "geosite:khanacademy"]
       },
       {
-	   "outboundTag": "tls-repack-googlevideo",
+	   "outboundTag": "tls-repack-google",
        "domain": ["domain:googlevideo.com"],
-       "inboundTag": ["tls-decrypt-h11"]
-	  },
-      {
-	   "outboundTag": "tls-repack-github-alive",
-       "domain": ["domain:alive.github.com", "domain:live.github.com"],
        "inboundTag": ["tls-decrypt-h11"]
 	  },
       {
@@ -484,64 +308,23 @@
        "inboundTag": ["tls-decrypt-h11"]
 	  },
       {
-	   "outboundTag": "tls-repack-google-main-services",
+	   "outboundTag": "tls-repack-google",
        "domain": ["geosite:google"],
        "inboundTag": ["tls-decrypt-h211"]
 	  },
 	  {
-	   "outboundTag": "tls-repack-vercel-sites",
-       "domain": ["geosite:vercel"],
-       "inboundTag": ["tls-decrypt-h211"]
-	  },
-	  {
 	   "outboundTag": "tls-repack-fastly",
-       "domain": ["geosite:fastly", "geosite:reddit", "geosite:cnn", "domain:buzzfeed.com", "domain:release-assets.githubusercontent.com", "domain:private-user-images.githubusercontent.com", "domain:raw.githubusercontent.com", "domain:github.githubassets.com", "domain:avatars.githubusercontent.com", "domain:camo.githubusercontent.com", "domain:xtls.github.io"],
-       "inboundTag": ["tls-decrypt-h211"]
-	  },
-	  {
-	   "outboundTag": "tls-repack-netlify",
-       "domain": ["geosite:netlify"],
+       "domain": ["geosite:fastly", "geosite:reddit", "geosite:cnn", "domain:buzzfeed.com"],
        "inboundTag": ["tls-decrypt-h211"]
 	  },
       {
-	   "outboundTag": "tls-repack-frommitm",
-       "domain": ["domain:api.github.com", "domain:codeload.github.com"],
-       "inboundTag": ["tls-decrypt-h211"]
-	  },
-      {
-	   "outboundTag": "tls-repack-github-com",
-       "domain": ["domain:gist.github.com", "domain:www.github.com", "full:github.com"],
-       "inboundTag": ["tls-decrypt-h211"]
-	  },
-      {
-	   "outboundTag": "tls-repack-github-com-2",
-       "domain": ["domain:objects-origin.githubusercontent.com", "domain:api.individual.githubcopilot.com", "domain:glb-db52c2cf8be544.github.com", "domain:api.githubcopilot.com", "domain:collector.github.com", "domain:central.github.com"],
-       "inboundTag": ["tls-decrypt-h211"]
-	  },
-      {
-	   "outboundTag": "tls-repack-github-uploads",
-       "domain": ["domain:uploads.github.com", "domain:alambic-origin.githubusercontent.com", "domain:camo-origin.githubusercontent.com"],
-       "inboundTag": ["tls-decrypt-h211"]
-	  },
-      {
-	   "outboundTag": "tls-repack-pubmed",
-       "domain": ["domain:pmc.ncbi.nlm.nih.gov"],
+	   "outboundTag": "tls-repack-meta",
+       "domain": ["geosite:meta"],
        "inboundTag": ["tls-decrypt-h211"]
 	  },
 	  {
 	   "outboundTag": "tls-repack-fastly",
        "ip": ["geoip:fastly"],
-       "inboundTag": ["tls-decrypt-h211"]
-	  },
-      {
-	   "outboundTag": "block",
-       "ip": ["10.10.34.0/24", "2001:4188:2:600::/64"],
-       "inboundTag": ["tls-decrypt-h211"]
-	  },
-      {
-	   "outboundTag": "tls-repack-github-null",
-       "domain": ["geosite:github"],
-       "ip": ["0.0.0.0/0", "::/0"],
        "inboundTag": ["tls-decrypt-h211"]
 	  },
       {
@@ -552,13 +335,13 @@
         "outboundTag": "redirect-out-h11",
         "network": "tcp",
         "port": 443,
-        "domain": ["domain:googlevideo.com", "domain:alive.github.com", "domain:live.github.com"]
+        "domain": ["domain:googlevideo.com"]
       },
       {
         "outboundTag": "redirect-out-h211",
         "network": "tcp",
         "port": 443,
-        "domain": ["geosite:github", "geosite:google", "geosite:vercel", "geosite:fastly", "geosite:reddit", "geosite:netlify", "geosite:cnn", "domain:buzzfeed.com", "domain:release-assets.githubusercontent.com", "domain:private-user-images.githubusercontent.com", "domain:raw.githubusercontent.com", "domain:github.githubassets.com", "domain:avatars.githubusercontent.com", "domain:xtls.github.io", "domain:gist.github.com", "domain:objects-origin.githubusercontent.com", "domain:api.individual.githubcopilot.com", "domain:glb-db52c2cf8be544.github.com", "domain:api.githubcopilot.com", "domain:camo.githubusercontent.com", "domain:uploads.github.com", "domain:alambic-origin.githubusercontent.com", "domain:camo-origin.githubusercontent.com", "domain:pmc.ncbi.nlm.nih.gov"]
+        "domain": ["geosite:google", "geosite:meta", "geosite:fastly", "geosite:reddit", "geosite:cnn", "domain:buzzfeed.com"]
       },
       {
         "outboundTag": "block",
