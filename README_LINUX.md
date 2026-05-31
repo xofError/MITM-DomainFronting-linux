@@ -19,7 +19,7 @@
 ابتدا اسکریپت نصب Xray را اجرا کنید:
 
 ```bash
-sudo ./install_xray_linux.sh
+sudo ./mitm_linux.sh install-xray
 ```
 
 این اسکریپت به طور خودکار:
@@ -47,7 +47,7 @@ cd ..
 برای نصب سرتیفیکیت در trust store سیستم:
 
 ```bash
-sudo ./install_certificate_linux.sh
+sudo ./mitm_linux.sh install-cert
 ```
 
 این اسکریپت به طور خودکار سرتیفیکیت را بر اساس توزیع لینوکس شما نصب می‌کند.
@@ -73,7 +73,7 @@ sudo ./install_certificate_linux.sh
 برای اجرای Xray از اسکریپت آماده استفاده کنید:
 
 ```bash
-./run_xray_linux.sh
+./mitm_linux.sh run
 ```
 
 یا به صورت دستی:
@@ -126,7 +126,7 @@ Settings → General → Network Settings → Manual proxy configuration
 برای اجرای خودکار Xray در هنگام بوت سیستم:
 
 ```bash
-sudo ./setup_systemd_service.sh
+sudo ./mitm_linux.sh setup-service
 ```
 
 سپس سرویس را فعال کنید:
@@ -247,11 +247,11 @@ sudo update-ca-certificates
 
 ### Quick Start
 
-1. Install Xray: `sudo ./install_xray_linux.sh`
-2. Generate certificate: `cd Xray-config && ./certificate_generator.sh && cd ..`
-3. Install certificate: `sudo ./install_certificate_linux.sh`
+1. Install Xray: `sudo ./mitm_linux.sh install-xray`
+2. Generate certificate: `./mitm_linux.sh generate-cert`
+3. Install certificate: `sudo ./mitm_linux.sh install-cert`
 4. Install certificate in your browser (see instructions above)
-5. Run Xray: `./run_xray_linux.sh`
+5. Run Xray: `./mitm_linux.sh run`
 6. Configure proxy: `127.0.0.1:10808`
 
 ### Supported Distributions
@@ -268,11 +268,11 @@ sudo update-ca-certificates
 
 ### Scripts Overview
 
-- `install_xray_linux.sh` - Installs Xray-core
-- `certificate_generator.sh` - Generates self-signed certificate
-- `install_certificate_linux.sh` - Installs certificate to system trust store
-- `run_xray_linux.sh` - Runs Xray with MITM config
-- `setup_systemd_service.sh` - Creates systemd service for auto-start
+- `mitm_linux.sh install-xray` - Installs Xray-core
+- `mitm_linux.sh generate-cert` - Generates self-signed certificate
+- `mitm_linux.sh install-cert` - Installs certificate to system trust store
+- `mitm_linux.sh run` - Runs Xray with MITM config
+- `mitm_linux.sh setup-service` - Creates systemd service for auto-start
 
 ### Support
 
