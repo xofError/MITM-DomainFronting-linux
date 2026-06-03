@@ -32,13 +32,96 @@ detect_os() {
 }
 
 check_xray_installed() {
-    XRAY_BIN="$(command -v xray || true)"
+    if [ -n "${XRAY_BIN}" ]; then
+        return
+    fi
+
+    XRAY_PATHS=(
+        "$(command -v xray 2>/dev/null || true)"
+        "/opt/v2rayN/bin/xray/xray"
+        "/opt/v2rayN/xray/xray"
+        "/usr/local/bin/xray"
+        "/usr/bin/xray"
+    )
+
+    for path in "${XRAY_PATHS[@]}"; do
+        if [ -x "$path" ]; then
+            XRAY_BIN="$path"
+            XRAY_BIN_DIR="$(dirname "$XRAY_BIN")"
+            break
+        fi
+    done
 
     if [ -z "$XRAY_BIN" ]; then
         echo "Error: xray is not installed!"
         echo "Run: sudo ./mitm_linux.sh install-xray"
         exit 1
     fi
+}
+
+sync_certificates_to_runtime_dirs() {
+    local targets=("$CERT_DIR" "$XRAY_BIN_DIR" "/opt/v2rayN/bin/xray" "/opt/v2rayN/xray")
+    local unique_targets=()
+    local target
+    local copied_any=false
+
+    for target in "${targets[@]}"; do
+        if [ -z "$target" ] || [ ! -d "$target" ] || [ ! -w "$target" ]; then
+            continue
+        fi
+
+        local exists=false
+        for existing in "${unique_targets[@]}"; do
+            if [ "$existing" = "$target" ]; then
+                exists=true
+            fi
+        done
+
+        if [ "$exists" = false ]; then
+            unique_targets+=("$target")
+        fi
+    done
+
+    for target in "${unique_targets[@]}"; do
+        local cert_target="$target/$CERT_FILE_NAME"
+        local key_target="$target/$KEY_FILE_NAME"
+
+        if [ "$cert_target" = "$CERT_FILE" ] && [ "$key_target" = "$KEY_FILE" ]; then
+            copied_any=true
+            echo "  - Already present: $target"
+            continue
+        fi
+
+        if cp "$CERT_FILE" "$cert_target" && cp "$KEY_FILE" "$key_target"; then
+            copied_any=true
+            echo "  - Synced into: $target"
+        else
+            echo "  - Could not sync into: $target (permission issue)"
+        fi
+    done
+
+    if [ "$copied_any" = false ]; then
+        echo "Warning: No writable certificate target directories found."
+        return 1
+    fi
+
+    return 0
+}
+
+restore_certificates_from_known_locations() {
+    local sources=("$SCRIPT_DIR" "$XRAY_BIN_DIR" "/opt/v2rayN/bin/xray" "/opt/v2rayN/xray")
+
+    for source in "${sources[@]}"; do
+        if [ -z "$source" ] || [ ! -f "$source/$CERT_FILE_NAME" ] || [ ! -f "$source/$KEY_FILE_NAME" ]; then
+            continue
+        fi
+
+        cp "$source/$CERT_FILE_NAME" "$CERT_FILE"
+        cp "$source/$KEY_FILE_NAME" "$KEY_FILE"
+        return 0
+    done
+
+    return 1
 }
 
 install_xray() {
@@ -141,6 +224,8 @@ generate_cert() {
         echo "Files created:"
         echo "  - $CERT_FILE"
         echo "  - $KEY_FILE"
+        echo "Copying to runtime paths..."
+        sync_certificates_to_runtime_dirs || true
         echo ""
         echo "WARNING: Keep your mycert.key file private and secure!"
     else
@@ -153,9 +238,7 @@ install_cert() {
     print_header "Certificate Installation Helper"
 
     if [ ! -f "$CERT_FILE" ]; then
-        if [ -f "$SCRIPT_DIR/$CERT_FILE_NAME" ]; then
-            cp "$SCRIPT_DIR/$CERT_FILE_NAME" "$CERT_FILE"
-        else
+        if ! restore_certificates_from_known_locations; then
             echo "Error: $CERT_FILE not found!"
             echo "Run: ./mitm_linux.sh generate-cert"
             exit 1
@@ -171,6 +254,9 @@ install_cert() {
         echo "Please run with sudo: sudo ./mitm_linux.sh install-cert"
         exit 1
     fi
+
+    echo "Ensuring certificate files are available in runtime paths..."
+    sync_certificates_to_runtime_dirs || true
 
     echo "Installing certificate to system trust store..."
     echo ""
@@ -209,10 +295,7 @@ run_xray() {
     fi
 
     if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
-        if [ -f "$SCRIPT_DIR/$CERT_FILE_NAME" ] && [ -f "$SCRIPT_DIR/$KEY_FILE_NAME" ]; then
-            cp "$SCRIPT_DIR/$CERT_FILE_NAME" "$CERT_FILE"
-            cp "$SCRIPT_DIR/$KEY_FILE_NAME" "$KEY_FILE"
-        else
+        if ! restore_certificates_from_known_locations; then
             echo "Error: Certificate files not found!"
             echo "Run: ./mitm_linux.sh generate-cert"
             exit 1
